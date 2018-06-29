@@ -68,6 +68,7 @@ int main()
             //if next step is available
             if(maze[ptr_top->row + move[dir].verti][ptr_top->col + move[dir].horiz] == 0)
             {
+                //we don't move if next step will let me turning back.
                 if(move[dir].verti == -move[ptr_top->dir].verti && move[dir].horiz == -move[ptr_top->dir].horiz)
                 {
                     continue;
@@ -79,18 +80,17 @@ int main()
                     break;
                 }
             }
+            //if next step will bang the wall
             else if(dir == 3 && maze[ptr_top->row + move[dir].verti][ptr_top->col + move[dir].horiz] == 1)
             {
-                dir = ptr_top->dir;
-                maze[ptr_top->row][ptr_top->col] = 1;
-                ptr_top = delete(ptr_top);
-
-                while(ptr_top->dir == 3)
+                //step back
+                do
                 {
                     dir = ptr_top->dir;
                     maze[ptr_top->row][ptr_top->col] = 1;
                     ptr_top = delete(ptr_top);
-                }
+                }while(ptr_top->dir == 3);
+
                 break;
             }
         }
