@@ -135,9 +135,7 @@ position* add(position *top, int dir) //NOTICE
 
 position* delete(position *top)
 {
-    position *ptr_tmp;
-
-    ptr_tmp = top;
+    position *ptr_tmp = top;
     top = top->back;
 
     free(ptr_tmp);
