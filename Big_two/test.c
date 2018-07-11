@@ -24,30 +24,130 @@ card_node* new_card_node(int, int);
 int add_card(card_node **, int, int);
 int shuffle(card_node **);
 int sorting(card_node **);
+int insert(card_node **, card_node *, card_node *);
 
 //--------------------------------------------------------------------------
 
 int main(void)
 {
     card_node *ptr_player_header[PLAYER] = {NULL}; //4 player deck header
-    shuffle(&ptr_player_header[0]);
-    //sorting(&ptr_player_header[0]);
+    shuffle(&ptr_player_header[0]); 
 
-    /*   
+    int i;
+    card_node *temp = ptr_player_header[0];
+
+    for(i = 0; i < 13; i++)
+    {
+        printf("%d   %d\n", ptr_player_header[0]->deck.suit, ptr_player_header[0]->deck.number);
+        ptr_player_header[0] = ptr_player_header[0]->next;
+    }
+    printf("\n\n");
+    ptr_player_header[0] = temp;
+
+    sorting(&ptr_player_header[0]);
+    /*
     int i;
     for(i = 0; i < 13; i++)
     {
-        printf("%d   %d\n", ptr_player_header[1]->deck.suit, ptr_player_header[1]->deck.number);
-        ptr_player_header[1] = ptr_player_header[1]->next;
+        printf("%d   %d\n", ptr_player_header[0]->deck.suit, ptr_player_header[0]->deck.number);
+        ptr_player_header[0] = ptr_player_header[0]->next;
     }
+    printf("\n\n");
     */
-    
+
     return 0;
 }
 
 int sorting(card_node **player_header)
 {
-    
+    if((*player_header) == NULL)
+    {
+        printf("Nothing has to sort!!!");
+    }
+    else
+    {
+        card_node *target = (*player_header)->next;
+        while(target != NULL)
+        {
+            card_node *checker = target->prev;
+            while(checker != NULL)
+            {
+                if((checker->deck.suit) > (target->deck.suit))
+                {
+                    if(checker->prev == NULL)
+                    {
+                        printf("***1***\n");
+                        insert(player_header, checker, target);
+                        break;
+                    }
+                    else
+                    {
+                        checker = checker->prev;
+                    }
+                }
+                else if(((checker->deck.suit) == (target->deck.suit)) && ((checker->deck.number) > (target->deck.number)))
+                {   
+                    if(checker->prev == NULL)
+                    {
+                        printf("***2***\n");
+                        insert(player_header, checker, target);
+                        break;
+                    }
+                    else
+                    {
+                        checker = checker->prev;
+                    }
+                }
+                else
+                {
+                    printf("***3***\n");
+                    insert(player_header, checker, target);
+                    break;
+                }
+            }
+            target = target->next;
+
+            int i;
+            card_node *temp = (*player_header);
+            for(i = 0; i < 13; i++)
+            {
+                printf("%d   %d\n", (*player_header)->deck.suit, (*player_header)->deck.number);
+                *player_header = (*player_header)->next;
+            }
+            *player_header = temp;
+            printf("\n\n\n");
+        }
+    }
+}
+int insert(card_node **player_header, card_node *checker_node, card_node *target_node)
+{
+    //First step: insert
+    card_node *new   = new_card_node(target_node->deck.suit, target_node->deck.number);
+    if(checker_node->prev == NULL)
+    {
+        checker_node->prev = new;
+        new->next          = checker_node;
+        *player_header     = new;
+    }
+    else
+    {
+        new->prev                = checker_node;
+        new->next                = checker_node->next;
+        checker_node->next->prev = new;
+        checker_node->next       = new;
+    }
+
+    //Second Step: Delete
+    if(target_node->next == NULL)
+    {
+        target_node->prev->next = NULL;
+    }
+    else
+    {
+        target_node->next->prev = target_node->prev;
+        target_node->prev->next = target_node->next;
+    }
+    free (target_node); 
 }
 
 int shuffle(card_node **player_header)
