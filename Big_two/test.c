@@ -32,20 +32,8 @@ int main(void)
 {
     card_node *ptr_player_header[PLAYER] = {NULL}; //4 player deck header
     shuffle(&ptr_player_header[0]); 
-
-    int i;
-    card_node *temp = ptr_player_header[0];
-
-    for(i = 0; i < 13; i++)
-    {
-        printf("%d   %d\n", ptr_player_header[0]->deck.suit, ptr_player_header[0]->deck.number);
-        ptr_player_header[0] = ptr_player_header[0]->next;
-    }
-    printf("\n\n");
-    ptr_player_header[0] = temp;
-
     sorting(&ptr_player_header[0]);
-    /*
+    
     int i;
     for(i = 0; i < 13; i++)
     {
@@ -53,7 +41,7 @@ int main(void)
         ptr_player_header[0] = ptr_player_header[0]->next;
     }
     printf("\n\n");
-    */
+    
 
     return 0;
 }
@@ -72,50 +60,32 @@ int sorting(card_node **player_header)
             card_node *checker = target->prev;
             while(checker != NULL)
             {
-                if((checker->deck.suit) > (target->deck.suit))
-                {
-                    if(checker->prev == NULL)
-                    {
-                        printf("***1***\n");
-                        insert(player_header, checker, target);
-                        break;
-                    }
-                    else
-                    {
-                        checker = checker->prev;
-                    }
-                }
-                else if(((checker->deck.suit) == (target->deck.suit)) && ((checker->deck.number) > (target->deck.number)))
+                if(((checker->deck.suit) > (target->deck.suit)) || ((checker->deck.suit == target->deck.suit)&&(checker->deck.number > target->deck.number)))
                 {   
                     if(checker->prev == NULL)
                     {
-                        printf("***2***\n");
                         insert(player_header, checker, target);
                         break;
                     }
                     else
                     {
-                        checker = checker->prev;
+                        if(((checker->prev->deck.suit) < (target->deck.suit)) || ((checker->prev->deck.suit == target->deck.suit)&&(checker->prev->deck.number < target->deck.number)))
+                        {
+                            insert(player_header, checker, target);
+                            break;
+                        }
+                        else
+                        {
+                            checker = checker->prev;
+                        }
                     }
                 }
                 else
                 {
-                    printf("***3***\n");
-                    insert(player_header, checker, target);
                     break;
                 }
             }
             target = target->next;
-
-            int i;
-            card_node *temp = (*player_header);
-            for(i = 0; i < 13; i++)
-            {
-                printf("%d   %d\n", (*player_header)->deck.suit, (*player_header)->deck.number);
-                *player_header = (*player_header)->next;
-            }
-            *player_header = temp;
-            printf("\n\n\n");
         }
     }
 }
@@ -131,10 +101,10 @@ int insert(card_node **player_header, card_node *checker_node, card_node *target
     }
     else
     {
-        new->prev                = checker_node;
-        new->next                = checker_node->next;
-        checker_node->next->prev = new;
-        checker_node->next       = new;
+        new->prev                = checker_node->prev;
+        new->next                = checker_node;
+        checker_node->prev->next = new;
+        checker_node->prev       = new;
     }
 
     //Second Step: Delete
