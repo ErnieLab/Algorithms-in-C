@@ -23,8 +23,10 @@ typedef struct node
 card_node* new_card_node(int, int);
 int add_card(card_node **, int, int);
 int shuffle(card_node **);
-int sorting(card_node **);
+int insertion_sort(card_node **);
 int insert(card_node **, card_node *, card_node *);
+int delete(card_node **);
+int check_specific_type(card_node **);
 
 //--------------------------------------------------------------------------
 
@@ -32,8 +34,11 @@ int main(void)
 {
     card_node *ptr_player_header[PLAYER] = {NULL}; //4 player deck header
     shuffle(&ptr_player_header[0]); 
-    sorting(&ptr_player_header[0]);
-    
+    insertion_sort(&ptr_player_header[0]);
+    //Game Start
+    int pool_state = 0;
+
+
     int i;
     for(i = 0; i < 13; i++)
     {
@@ -42,11 +47,16 @@ int main(void)
     }
     printf("\n\n");
     
-
     return 0;
 }
 
-int sorting(card_node **player_header)
+int check_specific_type(card_node **player_header)
+{
+    
+
+}
+
+int insertion_sort(card_node **player_header)
 {
     if((*player_header) == NULL)
     {
@@ -55,33 +65,29 @@ int sorting(card_node **player_header)
     else
     {
         card_node *target = (*player_header)->next;
+        card_node *checker;
         while(target != NULL)
         {
-            card_node *checker = target->prev;
+            checker = target->prev;
             while(checker != NULL)
             {
-                if(((checker->deck.suit) > (target->deck.suit)) || ((checker->deck.suit == target->deck.suit)&&(checker->deck.number > target->deck.number)))
-                {   
+                if((checker->deck.number) > (target->deck.number))
+                {
                     if(checker->prev == NULL)
                     {
                         insert(player_header, checker, target);
+                        delete(&target);
                         break;
                     }
                     else
                     {
-                        if(((checker->prev->deck.suit) < (target->deck.suit)) || ((checker->prev->deck.suit == target->deck.suit)&&(checker->prev->deck.number < target->deck.number)))
-                        {
-                            insert(player_header, checker, target);
-                            break;
-                        }
-                        else
-                        {
-                            checker = checker->prev;
-                        }
+                        checker = checker->prev;
                     }
                 }
                 else
                 {
+                    insert(player_header, checker, target);
+                    delete(&target);
                     break;
                 }
             }
@@ -89,11 +95,12 @@ int sorting(card_node **player_header)
         }
     }
 }
+
 int insert(card_node **player_header, card_node *checker_node, card_node *target_node)
 {
     //First step: insert
     card_node *new   = new_card_node(target_node->deck.suit, target_node->deck.number);
-    if(checker_node->prev == NULL)
+    if(checker_node->prev == NULL && ((target_node->deck.number) < (checker_node->deck.number)))
     {
         checker_node->prev = new;
         new->next          = checker_node;
@@ -101,24 +108,30 @@ int insert(card_node **player_header, card_node *checker_node, card_node *target
     }
     else
     {
-        new->prev                = checker_node->prev;
-        new->next                = checker_node;
-        checker_node->prev->next = new;
-        checker_node->prev       = new;
+        new->prev                = checker_node;
+        new->next                = checker_node->next;
+        checker_node->next->prev = new;
+        checker_node->next       = new;
     }
+}
 
+int delete(card_node **target_node)
+{
     //Second Step: Delete
-    if(target_node->next == NULL)
+    card_node *ready_be_free = *target_node;
+    if((*target_node)->next == NULL)
     {
-        target_node->prev->next = NULL;
+        (*target_node)->prev->next = NULL;
     }
     else
     {
-        target_node->next->prev = target_node->prev;
-        target_node->prev->next = target_node->next;
+        (*target_node)->next->prev = (*target_node)->prev;
+        (*target_node)->prev->next = (*target_node)->next;
     }
-    free (target_node); 
+    (*target_node) = (*target_node)->prev;   
+    free(ready_be_free); 
 }
+
 
 int shuffle(card_node **player_header)
 {
@@ -149,7 +162,7 @@ int shuffle(card_node **player_header)
     for(index = 0; index < CARD_NUM; index++)
     { 
         int suit   = *(card_index + index)/(CARD_NUM/PLAYER);
-        int number = *(card_index + index)%(CARD_NUM);
+        int number = *(card_index + index)%(CARD_NUM/PLAYER);
         if(number == 0)
         {
             number = CARD_NUM/PLAYER;
@@ -165,7 +178,6 @@ int shuffle(card_node **player_header)
         }
     }
 }
-
 
 card_node* new_card_node(int suit, int number)
 {
