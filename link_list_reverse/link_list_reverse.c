@@ -23,7 +23,7 @@ int main(void)
         en_queue(&header, i+1);
     }
     //reverse_iterative(&header);
-    header = reverse_recursive(header);
+    //header = reverse_recursive(header);
     display(header);
 }
 
